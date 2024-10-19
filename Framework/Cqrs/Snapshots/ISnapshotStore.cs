@@ -7,8 +7,12 @@
 #endregion
 
 using System;
-using System.Threading.Tasks;
 using Cqrs.Domain;
+
+#if NET472
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace Cqrs.Snapshots
 {

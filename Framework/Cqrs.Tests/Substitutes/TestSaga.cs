@@ -75,7 +75,6 @@ namespace Cqrs.Tests.Substitutes
 	}
 
 	public class TestSaga : Saga<ISingleSignOnToken>
-
 	{
 		public int DidSomethingCount;
 

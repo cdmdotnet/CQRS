@@ -7,6 +7,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -210,11 +211,11 @@ namespace Cqrs.Azure.Storage
 		/// </summary>
 		protected virtual
 #if NET472
-			void
+			void SaveData
 #else
-			async Task
+			async Task SaveDataAsync
 #endif
-				AsyncSaveData<TResult>(TData data, Func<TData, BlobClient, TResult> function, Func<TData, string> customFilenameFunction = null)
+				<TResult>(TData data, Func<TData, BlobClient, TResult> function, Func<TData, string> customFilenameFunction = null)
 		{
 			IList<Task> persistTasks = new List<Task>();
 			foreach ((BlobServiceClient Client, BlobContainerClient Container) tuple in WritableCollection)
@@ -276,10 +277,10 @@ namespace Cqrs.Azure.Storage
 				(TData data)
 		{
 #if NET472
+			SaveData
 #else
-			await
+			await SaveDataAsync
 #endif
-			AsyncSaveData
 			(
 				data,
 #if NET472
@@ -321,10 +322,10 @@ namespace Cqrs.Azure.Storage
 				(TData data)
 		{
 #if NET472
+			SaveData
 #else
-			await
+			await SaveDataAsync
 #endif
-				AsyncSaveData
 			(
 				data,
 #if NET472
@@ -428,8 +429,8 @@ namespace Cqrs.Azure.Storage
 #endif
 				(Func<BlobItem, bool> predicate = null, string blobPrefix = null, string folderName = null)
 		{
-			IList<Stream> results = null;
-			for(int i = 0; i < 10; i++)
+			ConcurrentQueue<Stream> results = null;
+			for(int i = 0; i < 100; i++)
 			{
 				AsyncPageable<BlobItem> blobs;
 				if (!string.IsNullOrWhiteSpace(folderName))
@@ -454,12 +455,12 @@ namespace Cqrs.Azure.Storage
 					sourceQuery = query.Values;
 				IList<BlobItem> source = sourceQuery.ToList();
 
-				results = new List<Stream>();
-				IList<Task> downloadTasks = new List<Task>();
+				results = new ConcurrentQueue<Stream>();
+				var downloadTasks = new ConcurrentQueue<Task>();
 				foreach (BlobItem x in source)
 				{
 #if NET472
-					downloadTasks.Add
+					downloadTasks.Enqueue
 					(
 						Task.Run(async () =>
 						{
@@ -467,7 +468,7 @@ namespace Cqrs.Azure.Storage
 							BlobClient blobClient = ReadableSource.GetBlobClient(x.Name);
 								BlobDownloadResult downloadResult = await blobClient.DownloadContentAsync();
 								BinaryData as1 = downloadResult.Content;
-								results.Add(as1.ToStream());
+								results.Enqueue(as1.ToStream());
 #if NET472
 						})
 					);
@@ -485,14 +486,19 @@ namespace Cqrs.Azure.Storage
 				if (!hasFinished)
 				{
 					Logger.LogError("Loading streams faulted.");
-					throw new Exception("Did not read all blobs.");
+					// Now we just go round again
+					// throw new Exception("Did not read all blobs.");
 				}
+				else
 #endif
+				{
+					// We discovered that sometimes getting blobs can return null streams... not helpful. Seems to be a race condition
+					// Turns out this was probably due to using a non threadsafe collection... so the below might not be needed anymore
+					if (results.Count == source.Count && !results.Any(x => x == null))
+						break;
+				}
 
-				// We discovered that sometimes getting blobs can return null streams... not helpful. Seems to be a race condition
-				if (results.Count == source.Count && !results.Any(x => x == null))
-					break;
-				Thread.Sleep(150);
+				Thread.Sleep(250);
 				results = null;
 			}
 			if (results == null)
@@ -544,7 +550,7 @@ namespace Cqrs.Azure.Storage
 #else
 			async Task<IEnumerable<TData>> GetByFolderAsync
 #endif
-				(string folderName)
+				(string folderName, Func<BlobItem, bool> predicate = null)
 		{
 			string folder = new Uri(string.Format(folderName.StartsWith("..\\") ? "http://l/2/{0}" : "http://l/{0}", folderName)).AbsolutePath.Substring(1);
 			return
@@ -554,7 +560,7 @@ namespace Cqrs.Azure.Storage
 #else
 				await OpenStreamsForReadingAsync
 #endif
-					(folderName: folder)
+					(folderName: folder, predicate: predicate)
 			)
 			.Select(Deserialise);
 		}

@@ -9,11 +9,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Cqrs.Domain;
 using Cqrs.Domain.Factories;
 using Cqrs.Events;
 using Cqrs.Infrastructure;
+
+#if NET472
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace Cqrs.Snapshots
 {
@@ -86,7 +90,7 @@ namespace Cqrs.Snapshots
 				<TAggregateRoot>(TAggregateRoot aggregate, int? expectedVersion = null)
 			where TAggregateRoot : IAggregateRoot<TAuthenticationToken>
 		{
-			// We need to grab these first as the changes will have been commitedd already by the time we go to make the snapshot.
+			// We need to grab these first as the changes will have been commited already by the time we go to make the snapshot.
 			IEnumerable<IEvent<TAuthenticationToken>> uncommittedChanges = aggregate.GetUncommittedChanges();
 			// Save the evets first then snapshot the system.
 #if NET40
@@ -265,7 +269,7 @@ namespace Cqrs.Snapshots
 
 #if NET40
 		/// <summary>
-		/// Calls <see cref="ISnapshotStrategy{TAuthenticationToken}.ShouldMakeSnapShot"/> on <see cref="SnapshotStrategy"/>
+		/// Calls <see cref="ISnapshotStrategy{TAuthenticationToken}.ShouldMakeSnapShot(IAggregateRoot{TAuthenticationToken}, IEnumerable{IEvent{TAuthenticationToken}})"/> on <see cref="SnapshotStrategy"/>
 		/// If the <see cref="IAggregateRoot{TAuthenticationToken}"/> is snapshot-able <see cref="SnapshotAggregateRoot{TAuthenticationToken,TSnapshot}.GetSnapshot"/> is called
 		/// The <see cref="Snapshot.Version"/> is calculated, finally <see cref="ISnapshotStore.Save"/> is called on <see cref="SnapshotStore"/>.
 		/// </summary>
@@ -273,7 +277,7 @@ namespace Cqrs.Snapshots
 		/// <param name="uncommittedChanges">A collection of uncommited changes to assess. If null the aggregate will be asked to provide them.</param>
 #else
 		/// <summary>
-		/// Calls <see cref="ISnapshotStrategy{TAuthenticationToken}.ShouldMakeSnapShot"/> on <see cref="SnapshotStrategy"/>
+		/// Calls <see cref="ISnapshotStrategy{TAuthenticationToken}.ShouldMakeSnapShot(IAggregateRoot{TAuthenticationToken}, IEnumerable{IEvent{TAuthenticationToken}})"/> on <see cref="SnapshotStrategy"/>
 		/// If the <see cref="IAggregateRoot{TAuthenticationToken}"/> is snapshot-able <see cref="SnapshotAggregateRoot{TAuthenticationToken,TSnapshot}.GetSnapshot"/> is called
 		/// The <see cref="Snapshot.Version"/> is calculated, finally <see cref="ISnapshotStore.SaveAsync(Snapshot)"/> is called on <see cref="SnapshotStore"/>.
 		/// </summary>
@@ -291,16 +295,16 @@ namespace Cqrs.Snapshots
 			if (!SnapshotStrategy.ShouldMakeSnapShot(aggregate, uncommittedChanges))
 				return;
 			dynamic snapshot = aggregate.AsDynamic().GetSnapshot().RealObject;
-			var rsnapshot = snapshot as Snapshot;
-			if (rsnapshot != null)
+			var rSnapshot = snapshot as Snapshot;
+			if (rSnapshot != null)
 			{
-				rsnapshot.Version = aggregate.Version;
+				rSnapshot.Version = aggregate.Version;
 #if NET40
 				SnapshotStore.Save
 #else
 				await SnapshotStore.SaveAsync
 #endif
-					(rsnapshot);
+					(rSnapshot);
 			}
 			else
 			{

@@ -20,6 +20,7 @@
 			* Added the ability to delay sending message publishing.
 			* Introduced the IMessageWithOrderingKey interface to aid in applying message process ordering if supported.
 			* Added the ability to publish non-saga events from a saga.
+			* Added snapshot support to sagas via a SnapshotSagaRepository
 
 			Version 5.0
 

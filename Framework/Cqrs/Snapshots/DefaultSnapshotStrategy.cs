@@ -32,7 +32,7 @@ namespace Cqrs.Snapshots
 		{
 			if (aggregateType.BaseType == null)
 				return false;
-			if (aggregateType.BaseType.IsGenericType && aggregateType.BaseType.GetGenericTypeDefinition() == typeof(SnapshotAggregateRoot<,>))
+			if (aggregateType.BaseType.IsGenericType && new [] { typeof(SnapshotAggregateRoot<,>), typeof(SnapshotSaga<,>) }.Contains(aggregateType.BaseType.GetGenericTypeDefinition()))
 				return true;
 			return IsSnapshotable(aggregateType.BaseType);
 		}
@@ -54,6 +54,29 @@ namespace Cqrs.Snapshots
 			int i = aggregate.Version - limit;
 			int snapshotInterval = GetSnapshotInterval();
 			
+			for (int j = 0; j < limit; j++)
+				if (++i % snapshotInterval == 0 && i != 0)
+					return true;
+			return false;
+		}
+
+		/// <summary>
+		/// Checks <see cref="IsSnapshotable"/> and if it is, also checks if the calculated version number would be exactly dividable by <see cref="GetSnapshotInterval"/>.
+		/// </summary>
+		/// <param name="saga">The <see cref="ISaga{TAuthenticationToken}"/> to check.</param>
+		/// <param name="uncommittedChanges">A collection of uncommited changes to assess. If null the aggregate will be asked to provide them.</param>
+		public bool ShouldMakeSnapShot(ISaga<TAuthenticationToken> saga, IEnumerable<ISagaEvent<TAuthenticationToken>> uncommittedChanges = null)
+		{
+			if (!IsSnapshotable(saga.GetType()))
+				return false;
+
+			// The reason this isn't as simple as `(aggregate.Version + aggregate.GetUncommittedChanges().Count()) % SnapshotInterval` is
+			// because if there are enough uncommited events that this would result in a snapshot, plus some left over, the final state is what will be generated
+			// when the snapshot is taken, thus this is a faster and more accurate assessment.
+			int limit = (uncommittedChanges ?? saga.GetUncommittedChanges()).Count();
+			int i = saga.Version - limit;
+			int snapshotInterval = GetSnapshotInterval();
+
 			for (int j = 0; j < limit; j++)
 				if (++i % snapshotInterval == 0 && i != 0)
 					return true;

@@ -28,7 +28,21 @@ namespace Cqrs.Domain
 	{
 		private ISagaRepository<TAuthenticationToken> Repository { get; set; }
 
+		private ISnapshotSagaRepository<TAuthenticationToken> SnapshotRepository { get; set; }
+
 		private Dictionary<Guid, ISagaDescriptor<TAuthenticationToken>> TrackedSagas { get; set; }
+
+		/// <summary>
+		/// Instantiates a new instance of <see cref="SagaUnitOfWork{TAuthenticationToken}"/>
+		/// </summary>
+		public SagaUnitOfWork(ISnapshotSagaRepository<TAuthenticationToken> snapshotRepository, ISagaRepository<TAuthenticationToken> repository)
+			: this(repository)
+		{
+			if (snapshotRepository == null)
+				throw new ArgumentNullException("snapshotRepository");
+
+			SnapshotRepository = snapshotRepository;
+		}
 
 		/// <summary>
 		/// Instantiates a new instance of <see cref="SagaUnitOfWork{TAuthenticationToken}"/>
@@ -51,7 +65,7 @@ namespace Cqrs.Domain
 #else
 			async Task AddAsync
 #endif
-				<TSaga>(TSaga saga)
+				<TSaga>(TSaga saga, bool useSnapshots = false)
 			where TSaga : ISaga<TAuthenticationToken>
 		{
 			if (!IsTracked(saga.Id))
@@ -59,7 +73,8 @@ namespace Cqrs.Domain
 				var sagaDescriptor = new SagaDescriptor<TSaga, TAuthenticationToken>
 				{
 					Saga = saga,
-					Version = saga.Version
+					Version = saga.Version,
+					UseSnapshots = useSnapshots
 				};
 				TrackedSagas.Add(saga.Id, sagaDescriptor);
 			}
@@ -80,7 +95,7 @@ namespace Cqrs.Domain
 #else
 			async Task<TSaga> GetAsync
 #endif
-				<TSaga>(Guid id, int? expectedVersion = null)
+				<TSaga>(Guid id, int? expectedVersion = null, bool useSnapshots = false)
 			where TSaga : ISaga<TAuthenticationToken>
 		{
 			if(IsTracked(id))
@@ -93,9 +108,9 @@ namespace Cqrs.Domain
 
 			var saga =
 #if NET40
-				Repository.Get
+				(useSnapshots ? SnapshotRepository : Repository).Get
 #else
-				await Repository.GetAsync
+				await (useSnapshots ? SnapshotRepository : Repository).GetAsync
 #endif
 					<TSaga>(id);
 			if (expectedVersion != null && saga.Version != expectedVersion)
@@ -105,7 +120,7 @@ namespace Cqrs.Domain
 #else
 			await AddAsync
 #endif
-				(saga);
+				(saga, useSnapshots);
 
 			return saga;
 		}
@@ -131,9 +146,9 @@ namespace Cqrs.Domain
 			foreach (ISagaDescriptor<TAuthenticationToken> descriptor in TrackedSagas.Values)
 			{
 #if NET40
-				Repository.Save
+				(descriptor.UseSnapshots ? SnapshotRepository : Repository).Save
 #else
-				await Repository.SaveAsync
+				await (descriptor.UseSnapshots ? SnapshotRepository : Repository).SaveAsync
 #endif
 					(descriptor.Saga, descriptor.Version);
 			}

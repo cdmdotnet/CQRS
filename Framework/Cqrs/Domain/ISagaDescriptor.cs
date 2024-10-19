@@ -14,6 +14,9 @@ namespace Cqrs.Domain
 	{
 		[DataMember]
 		int Version { get; set; }
+
+		[DataMember]
+		bool UseSnapshots { get; set; }
 	}
 
 	internal interface ISagaDescriptor<TAuthenticationToken> : ISagaDescriptor
