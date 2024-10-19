@@ -65,11 +65,23 @@ namespace Cqrs.Azure.Storage.Events
 		{
 			string streamName = string.Format(CqrsEventStoreStreamNamePattern, aggregateRootType.FullName, aggregateId);
 
+			Func<BlobItem, bool> predicate = null;
+			if (fromVersion > 0)
+			{
+				predicate = blob =>
+				{
+					string[] parts = blob.Name.Remove(0, streamName.Length).Split(["/"], StringSplitOptions.RemoveEmptyEntries);
+					// We're checking first if this isn't numeric... just return true, otherwise if the version matches return true.
+					// This is because while we should trust file name conventions... poorly dropped manual files shouldn't break things.
+					return !int.TryParse(parts[0], out int v) || v > fromVersion;
+				};
+			}
+
 			IEnumerable<EventData> query =
 #if NET472
-				BlobStorageStore.GetByFolder(streamName)
+				BlobStorageStore.GetByFolder(streamName, predicate)
 #else
-				(await BlobStorageStore.GetByFolderAsync(streamName))
+				(await BlobStorageStore.GetByFolderAsync(streamName, predicate))
 #endif
 				.Where(eventData => eventData.AggregateId == streamName && eventData.Version > fromVersion)
 				.OrderByDescending(eventData => eventData.Version);
@@ -306,10 +318,10 @@ namespace Cqrs.Azure.Storage.Events
 					(EventData data)
 			{
 #if NET472
+				SaveData
 #else
-				await
+				await SaveDataAsync
 #endif
-					AsyncSaveData
 				(
 					data,
 #if NET472

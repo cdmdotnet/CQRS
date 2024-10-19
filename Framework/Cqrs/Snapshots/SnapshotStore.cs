@@ -7,11 +7,15 @@
 #endregion
 
 using System;
-using System.Threading.Tasks;
 using Chinchilla.Logging;
 using Cqrs.Configuration;
 using Cqrs.Domain;
 using Cqrs.Events;
+
+#if NET472
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace Cqrs.Snapshots
 {

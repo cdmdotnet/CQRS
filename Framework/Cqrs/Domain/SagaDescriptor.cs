@@ -23,5 +23,8 @@ namespace Cqrs.Domain
 
 		[DataMember]
 		public int Version { get; set; }
+
+		[DataMember]
+		public bool UseSnapshots { get; set; }
 	}
 }

@@ -25,7 +25,7 @@ namespace Cqrs.Tests.Substitutes
 		/// <summary>
 		/// Add an item into the <see cref="ISagaUnitOfWork{TAuthenticationToken}"/> ready to be committed.
 		/// </summary>
-		public void Add<TSaga>(TSaga saga)
+		public void Add<TSaga>(TSaga saga, bool useSnapshots = false)
 			where TSaga : ISaga<Guid>
 		{
 			Tuple<ISaga<Guid>, int, int, int> testSaga;
@@ -39,7 +39,7 @@ namespace Cqrs.Tests.Substitutes
 		/// <summary>
 		/// Get an item from the <see cref="ISagaUnitOfWork{TAuthenticationToken}"/> if it has already been loaded.
 		/// </summary>
-		public TSaga Get<TSaga>(Guid id, int? expectedVersion = null)
+		public TSaga Get<TSaga>(Guid id, int? expectedVersion = null, bool useSnapshots = false)
 			where TSaga : ISaga<Guid>
 		{
 			Tuple<ISaga<Guid>, int, int, int> testSaga = TestGuidSagasWithAddCountGetCountAndCommitCount[id];
@@ -75,7 +75,7 @@ namespace Cqrs.Tests.Substitutes
 		/// <summary>
 		/// Add an item into the <see cref="ISagaUnitOfWork{TAuthenticationToken}"/> ready to be committed.
 		/// </summary>
-		void ISagaUnitOfWork<ISingleSignOnToken>.Add<TSaga>(TSaga saga)
+		void ISagaUnitOfWork<ISingleSignOnToken>.Add<TSaga>(TSaga saga, bool useSnapshots)
 		{
 			Tuple<ISaga<ISingleSignOnToken>, int, int, int> testSaga;
 			if (!TestSagasWithAddCountGetCountAndCommitCount.TryGetValue(saga.Id, out testSaga))
@@ -88,7 +88,7 @@ namespace Cqrs.Tests.Substitutes
 		/// <summary>
 		/// Get an item from the <see cref="ISagaUnitOfWork{TAuthenticationToken}"/> if it has already been loaded.
 		/// </summary>
-		TSaga ISagaUnitOfWork<ISingleSignOnToken>.Get<TSaga>(Guid id, int? expectedVersion)
+		TSaga ISagaUnitOfWork<ISingleSignOnToken>.Get<TSaga>(Guid id, int? expectedVersion, bool useSnapshots)
 		{
 			Tuple<ISaga<ISingleSignOnToken>, int, int, int> testSaga = TestSagasWithAddCountGetCountAndCommitCount[id];
 			testSaga = new Tuple<ISaga<ISingleSignOnToken>, int, int, int>(testSaga.Item1, testSaga.Item2, testSaga.Item3 + 1, testSaga.Item4);

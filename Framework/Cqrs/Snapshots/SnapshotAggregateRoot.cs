@@ -6,7 +6,10 @@
 // // -----------------------------------------------------------------------
 #endregion
 
+using Chinchilla.Logging;
+using Cqrs.Configuration;
 using Cqrs.Domain;
+using System;
 
 namespace Cqrs.Snapshots
 {
@@ -19,6 +22,14 @@ namespace Cqrs.Snapshots
 		: AggregateRoot<TAuthenticationToken>
 		where TSnapshot : Snapshot
 	{
+		/// <summary>
+		/// A constructor for the <see cref="Cqrs.Domain.Factories.IAggregateFactory"/>
+		/// </summary>
+		protected SnapshotAggregateRoot()
+			: base()
+		{
+		}
+
 		/// <summary>
 		/// Calls <see cref="CreateSnapshot"/> and applies the <see cref="IAggregateRoot{TAuthenticationToken}.Id"/> of this instance to the <typeparamref name="TSnapshot"/> result.
 		/// </summary>

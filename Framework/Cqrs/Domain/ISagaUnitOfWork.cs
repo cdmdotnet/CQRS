@@ -7,7 +7,11 @@
 #endregion
 
 using System;
+
+#if NET472
+#else
 using System.Threading.Tasks;
+#endif
 
 namespace Cqrs.Domain
 {
@@ -24,7 +28,7 @@ namespace Cqrs.Domain
 #else
 		Task AddAsync
 #endif
-			<TSaga>(TSaga saga)
+			<TSaga>(TSaga saga, bool useSnapshots = false)
 			where TSaga : ISaga<TAuthenticationToken>;
 
 		/// <summary>
@@ -35,7 +39,7 @@ namespace Cqrs.Domain
 #else
 		Task<TSaga> GetAsync
 #endif
-		<TSaga>(Guid id, int? expectedVersion = null)
+			<TSaga>(Guid id, int? expectedVersion = null, bool useSnapshots = false)
 			where TSaga : ISaga<TAuthenticationToken>;
 
 		/// <summary>

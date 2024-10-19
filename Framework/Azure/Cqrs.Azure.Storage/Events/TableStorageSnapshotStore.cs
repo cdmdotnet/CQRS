@@ -8,13 +8,17 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Azure.Data.Tables;
 using Chinchilla.Logging;
 using Cqrs.Configuration;
 using Cqrs.Domain;
 using Cqrs.Events;
 using Cqrs.Snapshots;
+
+#if NET472
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace Cqrs.Azure.Storage.Events
 {
