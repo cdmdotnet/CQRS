@@ -61,7 +61,7 @@
 		<PackageReference Include="Azure.Data.Tables" Version="12.8.1" />
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.18.0" />
 		<PackageReference Include="Chinchilla.StateManagement" Version="4.2.11" />
-		<PackageReference Include="Chinchilla.Logging" Version="5.2.44" />
+		<PackageReference Include="Chinchilla.Logging" Version="5.2.45" />
 		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.1" />
 	</ItemGroup>
 

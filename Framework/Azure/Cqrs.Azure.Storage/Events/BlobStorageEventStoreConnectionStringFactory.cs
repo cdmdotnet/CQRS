@@ -93,13 +93,13 @@ namespace Cqrs.Azure.Storage.Events
 				}
 
 				if (!collection.Any())
-					throw new MissingApplicationSettingException(BlobStorageEventStoreConnectionStringKey);
+					throw new MissingConnectionStringException(BlobStorageEventStoreConnectionStringKey);
 
 				return collection;
 			}
 			catch (NullReferenceException exception)
 			{
-				throw new MissingApplicationSettingException(BlobStorageEventStoreConnectionStringKey, exception);
+				throw new MissingConnectionStringException(BlobStorageEventStoreConnectionStringKey, exception);
 			}
 			finally
 			{
@@ -124,13 +124,13 @@ namespace Cqrs.Azure.Storage.Events
 				}
 
 				if (string.IsNullOrWhiteSpace(blobStorageWritableEventStoreConnectionString))
-					throw new MissingApplicationSettingException(BlobStorageEventStoreConnectionStringKey);
+					throw new MissingConnectionStringException(BlobStorageEventStoreConnectionStringKey);
 
 				return blobStorageWritableEventStoreConnectionString;
 			}
 			catch (NullReferenceException exception)
 			{
-				throw new MissingApplicationSettingException(BlobStorageEventStoreConnectionStringKey, exception);
+				throw new MissingConnectionStringException(BlobStorageEventStoreConnectionStringKey, exception);
 			}
 			finally
 			{

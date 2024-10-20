@@ -64,7 +64,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Chinchilla.Logging.Azure" Version="5.2.44" />
+		<PackageReference Include="Chinchilla.Logging.Azure" Version="5.2.45" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />

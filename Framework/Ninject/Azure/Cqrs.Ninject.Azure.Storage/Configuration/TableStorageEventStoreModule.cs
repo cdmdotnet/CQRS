@@ -19,7 +19,7 @@ namespace Cqrs.Ninject.Azure.Storage.Configuration
 	/// A <see cref="INinjectModule"/> that wires up the prerequisites of <see cref="IEventStore{TAuthenticationToken}"/> with table storage.
 	/// </summary>
 	/// <typeparam name="TAuthenticationToken">The <see cref="Type"/> of the authentication token.</typeparam>
-	public class TableStoragEventStoreModule<TAuthenticationToken> : NinjectModule
+	public class TableStorageEventStoreModule<TAuthenticationToken> : NinjectModule
 	{
 		#region Overrides of NinjectModule
 

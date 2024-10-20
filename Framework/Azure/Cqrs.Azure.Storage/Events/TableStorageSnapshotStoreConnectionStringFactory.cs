@@ -83,13 +83,13 @@ namespace Cqrs.Azure.Storage.Events
 				}
 
 				if (!collection.Any())
-					throw new MissingApplicationSettingException(TableStorageSnapshotStoreConnectionStringKey);
+					throw new MissingConnectionStringException(TableStorageSnapshotStoreConnectionStringKey);
 
 				return collection;
 			}
 			catch (NullReferenceException exception)
 			{
-				throw new MissingApplicationSettingException(TableStorageSnapshotStoreConnectionStringKey, exception);
+				throw new MissingConnectionStringException(TableStorageSnapshotStoreConnectionStringKey, exception);
 			}
 			finally
 			{
@@ -114,13 +114,13 @@ namespace Cqrs.Azure.Storage.Events
 				}
 
 				if (string.IsNullOrWhiteSpace(tableStorageWritableSnapshotStoreConnectionString))
-					throw new MissingApplicationSettingException(TableStorageSnapshotStoreConnectionStringKey);
+					throw new MissingConnectionStringException(TableStorageSnapshotStoreConnectionStringKey);
 
 				return tableStorageWritableSnapshotStoreConnectionString;
 			}
 			catch (NullReferenceException exception)
 			{
-				throw new MissingApplicationSettingException(TableStorageSnapshotStoreConnectionStringKey, exception);
+				throw new MissingConnectionStringException(TableStorageSnapshotStoreConnectionStringKey, exception);
 			}
 			finally
 			{
