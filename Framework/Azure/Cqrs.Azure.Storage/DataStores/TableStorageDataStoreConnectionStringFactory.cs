@@ -92,13 +92,13 @@ namespace Cqrs.Azure.Storage.DataStores
 				}
 
 				if (!collection.Any())
-					throw new MissingApplicationSettingException(TableStorageDataStoreConnectionStringKey);
+					throw new MissingConnectionStringException(TableStorageDataStoreConnectionStringKey);
 
 				return collection;
 			}
 			catch (NullReferenceException exception)
 			{
-				throw new MissingApplicationSettingException(TableStorageDataStoreConnectionStringKey, exception);
+				throw new MissingConnectionStringException(TableStorageDataStoreConnectionStringKey, exception);
 			}
 			finally
 			{
@@ -123,13 +123,13 @@ namespace Cqrs.Azure.Storage.DataStores
 				}
 
 				if (string.IsNullOrWhiteSpace(blobStorageWritableDataStoreConnectionString))
-					throw new MissingApplicationSettingException(TableStorageDataStoreConnectionStringKey);
+					throw new MissingConnectionStringException(TableStorageDataStoreConnectionStringKey);
 
 				return blobStorageWritableDataStoreConnectionString;
 			}
 			catch (NullReferenceException exception)
 			{
-				throw new MissingApplicationSettingException(TableStorageDataStoreConnectionStringKey, exception);
+				throw new MissingConnectionStringException(TableStorageDataStoreConnectionStringKey, exception);
 			}
 			finally
 			{

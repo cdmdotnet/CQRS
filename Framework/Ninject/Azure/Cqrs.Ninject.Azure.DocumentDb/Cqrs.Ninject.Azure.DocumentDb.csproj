@@ -68,7 +68,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Chinchilla.StateManagement" Version="4.2.11" />
-		<PackageReference Include="Chinchilla.Logging" Version="5.2.44" />
+		<PackageReference Include="Chinchilla.Logging" Version="5.2.45" />
 	</ItemGroup>
 
 	<ItemGroup>
