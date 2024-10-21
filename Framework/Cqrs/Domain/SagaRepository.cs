@@ -141,7 +141,7 @@ namespace Cqrs.Domain
 #endif
 						(saga.GetType(), saga.Id, false, expectedVersion.Value);
 				if (eventStoreResults.Any())
-					throw new ConcurrencyException(saga.Id);
+					throw new ConcurrencyException(saga.Id, expectedVersion.Value, eventStoreResults.First().Version);
 			}
 
 			var eventsToPublish = new List<ISagaEvent<TAuthenticationToken>>();

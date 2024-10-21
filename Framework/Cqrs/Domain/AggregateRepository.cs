@@ -107,7 +107,7 @@ namespace Cqrs.Domain
 				eventStoreResults = await EventStore.GetAsync(aggregate.GetType(), aggregate.Id, false, expectedVersion.Value);
 #endif
 				if (eventStoreResults.Any())
-					throw new ConcurrencyException(aggregate.Id);
+					throw new ConcurrencyException(aggregate.Id, expectedVersion.Value, eventStoreResults.First().Version);
 			}
 
 			var eventsToPublish = new List<IEvent<TAuthenticationToken>>();

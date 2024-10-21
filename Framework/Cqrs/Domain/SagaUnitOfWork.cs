@@ -78,7 +78,7 @@ namespace Cqrs.Domain
 				};
 				TrackedSagas.Add(saga.Id, sagaDescriptor);
 			}
-			else if (((TrackedSagas[saga.Id]).Saga) != (ISaga<TAuthenticationToken>)saga)
+			else if (TrackedSagas[saga.Id].Saga != (ISaga<TAuthenticationToken>)saga)
 				throw new ConcurrencyException(saga.Id);
 #if NET40
 #else
@@ -102,7 +102,7 @@ namespace Cqrs.Domain
 			{
 				var trackedSaga = (TSaga)TrackedSagas[id].Saga;
 				if (expectedVersion != null && trackedSaga.Version != expectedVersion)
-					throw new ConcurrencyException(trackedSaga.Id);
+					throw new ConcurrencyException(trackedSaga.Id, expectedVersion.Value, trackedSaga.Version);
 				return trackedSaga;
 			}
 
@@ -114,7 +114,7 @@ namespace Cqrs.Domain
 #endif
 					<TSaga>(id);
 			if (expectedVersion != null && saga.Version != expectedVersion)
-				throw new ConcurrencyException(id);
+				throw new ConcurrencyException(id, expectedVersion.Value, saga.Version);
 #if NET40
 			Add
 #else

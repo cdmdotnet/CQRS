@@ -79,7 +79,7 @@ namespace Cqrs.Domain
 				};
 				TrackedAggregates.Add(aggregate.Id, aggregateDescriptor);
 			}
-			else if (((TrackedAggregates[aggregate.Id]).Aggregate) != (IAggregateRoot<TAuthenticationToken>)aggregate)
+			else if (TrackedAggregates[aggregate.Id].Aggregate != (IAggregateRoot<TAuthenticationToken>)aggregate)
 				throw new ConcurrencyException(aggregate.Id);
 #if NET40
 #else
@@ -103,7 +103,7 @@ namespace Cqrs.Domain
 			{
 				var trackedAggregate = (TAggregateRoot)TrackedAggregates[id].Aggregate;
 				if (expectedVersion != null && trackedAggregate.Version != expectedVersion)
-					throw new ConcurrencyException(trackedAggregate.Id);
+					throw new ConcurrencyException(trackedAggregate.Id, expectedVersion.Value, trackedAggregate.Version);
 				return trackedAggregate;
 			}
 
@@ -115,7 +115,7 @@ namespace Cqrs.Domain
 #endif
 					<TAggregateRoot>(id);
 			if (expectedVersion != null && aggregate.Version != expectedVersion)
-				throw new ConcurrencyException(id);
+				throw new ConcurrencyException(id, expectedVersion.Value, aggregate.Version);
 #if NET40
 			Add
 #else

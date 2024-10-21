@@ -34,6 +34,8 @@ namespace Cqrs.Azure.Storage.Test.Integration
 			EventCount++;
 		}
 
+		#endregion
+    
 		protected override void SetId(ISagaEvent<Guid> sagaEvent)
 		{
 			// We set Id as the eventstore is using that and not an IEventWithIdentity
@@ -50,8 +52,6 @@ namespace Cqrs.Azure.Storage.Test.Integration
 		{
 			EventCount = snapshot.EventCount;
 		}
-
-		#endregion
 	}
 
 	public class TestSagaSnapshot : Snapshot
