@@ -35,7 +35,7 @@ namespace Cqrs.Azure.Storage.Test.Integration
 		}
 
 		#endregion
-
+    
 		protected override void SetId(ISagaEvent<Guid> sagaEvent)
 		{
 			// We set Id as the eventstore is using that and not an IEventWithIdentity
