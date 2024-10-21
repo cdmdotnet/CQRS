@@ -29,10 +29,6 @@ using TestInitialize = NUnit.Framework.SetUpAttribute;
 using TestCleanup = NUnit.Framework.TearDownAttribute;
 using TestContext = System.Object;
 
-
-
-
-
 #if NET472
 #else
 using System.Threading.Tasks;

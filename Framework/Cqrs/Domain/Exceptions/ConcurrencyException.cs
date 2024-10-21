@@ -22,10 +22,24 @@ namespace Cqrs.Domain.Exceptions
 		/// Instantiate a new instance of <see cref="ConcurrencyException"/> with the provided identifier of the <see cref="IAggregateRoot{TAuthenticationToken}"/> that had a concurrency issue.
 		/// </summary>
 		/// <param name="id">The identifier of the <see cref="IAggregateRoot{TAuthenticationToken}"/> that wasn't found.</param>
-		public ConcurrencyException(Guid id)
-			: base(string.Format("A different version than expected was found in aggregate {0}", id))
+		/// <param name="expectedVersion">The version that was expected.</param>
+		/// <param name="foundVersion">The version that was found.</param>
+		public ConcurrencyException(Guid id, int? expectedVersion = null, int? foundVersion = null)
+			: base(GenerateMessage(id, expectedVersion, foundVersion))
 		{
 			Id = id;
+			ExpectedVersion = expectedVersion;
+			FoundVersion = foundVersion;
+		}
+
+		static string GenerateMessage(Guid id, int? expectedVersion = null, int? foundVersion = null)
+		{
+			string pattern = $"A different version than expected was found in aggregate {id}";
+			if (expectedVersion != null)
+				pattern = string.Concat(pattern, $". Expected Version {expectedVersion}");
+			if (foundVersion != null)
+				pattern = string.Concat(pattern, $". Found Version {foundVersion}");
+			return pattern;
 		}
 
 		/// <summary>
@@ -33,5 +47,17 @@ namespace Cqrs.Domain.Exceptions
 		/// </summary>
 		[DataMember]
 		public Guid Id { get; set; }
+
+		/// <summary>
+		/// The version that was expected.
+		/// </summary>
+		[DataMember]
+		public int? ExpectedVersion { get; set; }
+
+		/// <summary>
+		/// The version that was found.
+		/// </summary>
+		[DataMember]
+		public int? FoundVersion { get; set; }
 	}
 }

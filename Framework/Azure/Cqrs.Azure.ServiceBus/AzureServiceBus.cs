@@ -14,6 +14,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Chinchilla.Logging;
@@ -38,7 +39,6 @@ using Microsoft.ServiceBus.Messaging;
 using Manager = Microsoft.ServiceBus.NamespaceManager;
 using IMessageReceiver = Microsoft.ServiceBus.Messaging.SubscriptionClient;
 #endif
-
 #if NET462
 using Microsoft.Identity.Client;
 #endif
@@ -234,6 +234,10 @@ namespace Cqrs.Azure.ServiceBus
 		/// </summary>
 		protected IList<string> ExclusionNamespaces { get; private set; }
 
+		private IList<string> TaskRelatedMethodNames { get; }
+
+		private Regex ContainerNameMatcher { get; }
+
 #if NET462
 		/// <summary>
 		/// Gets an access token from Active Directory when using RBAC based connections.
@@ -249,16 +253,25 @@ namespace Cqrs.Azure.ServiceBus
 		{
 			AzureBusHelper = azureBusHelper;
 			BusHelper = busHelper;
+			Signer = hashAlgorithmFactory;
+
 			TelemetryHelper = new NullTelemetryHelper();
 			PrivateServiceBusReceivers = new Dictionary<int, IMessageReceiver>();
 			PublicServiceBusReceivers = new Dictionary<int, IMessageReceiver>();
 			TimeoutOnSendRetryMaximumCount = 1;
+
 			string timeoutOnSendRetryMaximumCountValue;
 			short timeoutOnSendRetryMaximumCount;
 			if (ConfigurationManager.TryGetSetting("Cqrs.Azure.Servicebus.TimeoutOnSendRetryMaximumCount", out timeoutOnSendRetryMaximumCountValue) && !string.IsNullOrWhiteSpace(timeoutOnSendRetryMaximumCountValue) && short.TryParse(timeoutOnSendRetryMaximumCountValue, out timeoutOnSendRetryMaximumCount))
 				TimeoutOnSendRetryMaximumCount = timeoutOnSendRetryMaximumCount;
+
 			ExclusionNamespaces = new SynchronizedCollection<string> { "Cqrs", "System" };
-			Signer = hashAlgorithmFactory;
+			TaskRelatedMethodNames = new List<string>
+			{
+				"MoveNext",
+				"Start"
+			};
+			ContainerNameMatcher = new Regex("^(.)+?>", RegexOptions.IgnoreCase);
 
 #if NET462
 			InstantiateActiveDirectoryToken();
@@ -1410,14 +1423,25 @@ namespace Cqrs.Azure.ServiceBus
 					foreach (StackFrame frame in stackFrames)
 					{
 						MethodBase method = frame.GetMethod();
-						if (method.ReflectedType == null)
+						if (method.ReflectedType == null || string.IsNullOrWhiteSpace(method.ReflectedType.FullName))
 							continue;
 
 						try
 						{
 							if (ExclusionNamespaces.All(@namespace => !method.ReflectedType.FullName.StartsWith(@namespace)))
 							{
-								brokeredMessage.AddUserProperty("Source-Method", $"{method.ReflectedType.FullName}.{method.Name}");
+								string container;
+								Match match;
+								if (method.DeclaringType.IsSealed && method.DeclaringType.IsNestedPrivate && method.DeclaringType.IsAutoLayout && TaskRelatedMethodNames.Contains(method.Name) && (match = ContainerNameMatcher.Match(method.ReflectedType.FullName)).Success)
+								{
+									container = match.Value.Substring(0, match.Value.Length - 1).Replace("+<", "\\");
+								}
+								else
+								{
+									container = $"{method.ReflectedType.FullName}\\{method.Name}";
+								}
+
+								brokeredMessage.AddUserProperty("Source-Method", container);
 								break;
 							}
 						}
