@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Chinchilla.Logging;
 using Cqrs.Authentication;
 using Cqrs.Bus;
@@ -19,6 +18,7 @@ using Cqrs.Events;
 using Cqrs.Messages;
 
 #if NETSTANDARD2_0 || NET48_OR_GREATER
+using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using BrokeredMessage = Azure.Messaging.ServiceBus.ServiceBusMessage;
 #else
@@ -435,6 +435,7 @@ namespace Cqrs.Azure.ServiceBus
 				try
 				{
 					int count = 1;
+					bool batchSuccess = true;
 					do
 					{
 						try
@@ -451,10 +452,40 @@ namespace Cqrs.Azure.ServiceBus
 								Logger.LogDebug("An empty collection of public events to publish post validation.");
 							break;
 						}
+#if NETSTANDARD2_0 || NET48_OR_GREATER
+						catch (ServiceBusException exception)
+						{
+							if (exception.Reason == ServiceBusFailureReason.MessageSizeExceeded)
+							{
+								Logger.LogDebug("The size of the event being sent was too large. Will try sending individually", exception: exception, metaData: new Dictionary<string, object> { { "Command", publicBrokeredMessages } });
+								batchSuccess = false;
+							}
+							else
+								throw;
+						}
+#else
+						catch (QuotaExceededException exception)
+						{
+							Logger.LogDebug("The size of the event being sent was too large. Will try sending individually", exception: exception, metaData: new Dictionary<string, object> { { "Command", publicBrokeredMessages } });
+							batchSuccess = false;
+						}
+#endif
 						catch (TimeoutException)
 						{
 							if (count >= TimeoutOnSendRetryMaximumCount)
 								throw;
+						}
+						if (!batchSuccess)
+						{
+							foreach (var publicBrokeredMessage in publicBrokeredMessages)
+							{
+#if NETSTANDARD2_0 || NET48_OR_GREATER
+								await PublicServiceBusPublisher.SendMessageAsync(publicBrokeredMessage);
+#else
+								PublicServiceBusPublisher.Send(publicBrokeredMessage);
+#endif
+							}
+							break;
 						}
 						count++;
 					} while (true);
@@ -491,6 +522,7 @@ namespace Cqrs.Azure.ServiceBus
 				try
 				{
 					int count = 1;
+					bool batchSuccess = true;
 					do
 					{
 						try
@@ -507,10 +539,40 @@ namespace Cqrs.Azure.ServiceBus
 								Logger.LogDebug("An empty collection of private events to publish post validation.");
 							break;
 						}
+#if NETSTANDARD2_0 || NET48_OR_GREATER
+						catch (ServiceBusException exception)
+						{
+							if (exception.Reason == ServiceBusFailureReason.MessageSizeExceeded)
+							{
+								Logger.LogDebug("The size of the event being sent was too large. Will try sending individually", exception: exception, metaData: new Dictionary<string, object> { { "Command", publicBrokeredMessages } });
+								batchSuccess = false;
+							}
+							else
+								throw;
+						}
+#else
+						catch (QuotaExceededException exception)
+						{
+							Logger.LogDebug("The size of the event being sent was too large. Will try sending individually", exception: exception, metaData: new Dictionary<string, object> { { "Command", publicBrokeredMessages } });
+							batchSuccess = false;
+						}
+#endif
 						catch (TimeoutException)
 						{
 							if (count >= TimeoutOnSendRetryMaximumCount)
 								throw;
+						}
+						if (!batchSuccess)
+						{
+							foreach (var publicBrokeredMessage in publicBrokeredMessages)
+							{
+#if NETSTANDARD2_0 || NET48_OR_GREATER
+								await PublicServiceBusPublisher.SendMessageAsync(publicBrokeredMessage);
+#else
+								PublicServiceBusPublisher.Send(publicBrokeredMessage);
+#endif
+							}
+							break;
 						}
 						count++;
 					} while (true);
