@@ -64,6 +64,11 @@ namespace Cqrs.DependencyInjection.Modules
 		protected bool RegisterDefaultSnapshotAggregateRepository { get; private set; }
 
 		/// <summary>
+		/// Indicates that the <see cref="ISnapshotSagaRepository{TAuthenticationToken}"/> should be registered automatically.
+		/// </summary>
+		protected bool RegisterDefaultSnapshotSagaRepository { get; private set; }
+
+		/// <summary>
 		/// Indicates that the <see cref="ISnapshotBuilder"/> should be registered automatically.
 		/// </summary>
 		protected bool RegisterDefaultSnapshotBuilder { get; private set; }
@@ -76,6 +81,7 @@ namespace Cqrs.DependencyInjection.Modules
 		/// "Cqrs.RegisterDefaultConfigurationManager": If set true the <see cref="ConfigurationManager"/> will be registered. If you want to use the Azure one leave this as false (the default) and register it yourself.
 		/// "Cqrs.RegisterDefaultSnapshotStrategy": If set true the <see cref="DefaultSnapshotStrategy{TAuthenticationToken}"/> will be registered.
 		/// "Cqrs.RegisterDefaultSnapshotAggregateRepository": If set true the <see cref="SnapshotRepository{TAuthenticationToken}"/> will be registered.
+		/// "Cqrs.RegisterDefaultSnapshotSagaRepository": If set true the <see cref="SnapshotSagaRepository{TAuthenticationToken}"/> will be registered.
 		/// "Cqrs.RegisterDefaultSnapshotBuilder": If set true the <see cref="DefaultSnapshotBuilder"/> will be registered.
 		/// </summary>
 		/// <param name="configurationManager">The <see cref="IConfigurationManager"/> to use, if one isn't provided then <see cref="ConfigurationManager"/> is instantiate, used and then disposed.</param>
@@ -92,6 +98,10 @@ namespace Cqrs.DependencyInjection.Modules
 				RegisterDefaultSnapshotAggregateRepository = registerDefaultSnapshotAggregateRepository;
 			else
 				RegisterDefaultSnapshotAggregateRepository = true;
+			if (configurationManager.TryGetSetting("Cqrs.RegisterDefaultSnapshotSagaRepository", out bool registerDefaultSnapshotSagaRepository))
+				RegisterDefaultSnapshotSagaRepository = registerDefaultSnapshotSagaRepository;
+			else
+				RegisterDefaultSnapshotSagaRepository = true;
 			if (configurationManager.TryGetSetting("Cqrs.RegisterDefaultSnapshotStrategy", out bool registerDefaultSnapshotStrategy))
 				RegisterDefaultSnapshotStrategy = registerDefaultSnapshotStrategy;
 			else
@@ -109,14 +119,16 @@ namespace Cqrs.DependencyInjection.Modules
 		/// <param name="setupForSqlLogging">Set this to true to use <see cref="SqlLogger"/> otherwise the <see cref="ConsoleLogger"/> will be bootstrapped by default.</param>
 		/// <param name="registerDefaultConfigurationManager">Set this to true to use <see cref="ConfigurationManager"/>. If you want to use the Azure one leave this as false (the default) and register it yourself.</param>
 		/// <param name="registerDefaultSnapshotAggregateRepository">If set true the <see cref="SnapshotRepository{TAuthenticationToken}"/> will be registered.</param>
+		/// <param name="registerDefaultSnapshotSagaRepository">If set true the <see cref="SnapshotSagaRepository{TAuthenticationToken}"/> will be registered.</param>
 		/// <param name="registerDefaultSnapshotStrategy">If set true the <see cref="DefaultSnapshotStrategy{TAuthenticationToken}"/> will be registered.</param>
 		/// <param name="registerDefaultSnapshotBuilder">If set true the <see cref="DefaultSnapshotBuilder"/> will be registered.</param>
-		public CqrsModule(bool setupForWeb, bool setupForSqlLogging, bool registerDefaultConfigurationManager = false, bool registerDefaultSnapshotAggregateRepository = true, bool registerDefaultSnapshotStrategy = true, bool registerDefaultSnapshotBuilder = true)
+		public CqrsModule(bool setupForWeb, bool setupForSqlLogging, bool registerDefaultConfigurationManager = false, bool registerDefaultSnapshotAggregateRepository = true, bool registerDefaultSnapshotSagaRepository = true, bool registerDefaultSnapshotStrategy = true, bool registerDefaultSnapshotBuilder = true)
 		{
 			SetupForWeb = setupForWeb;
 			SetupForSqlLogging = setupForSqlLogging;
 			RegisterDefaultConfigurationManager = registerDefaultConfigurationManager;
 			RegisterDefaultSnapshotAggregateRepository = registerDefaultSnapshotAggregateRepository;
+			RegisterDefaultSnapshotSagaRepository = registerDefaultSnapshotSagaRepository;
 			RegisterDefaultSnapshotStrategy = registerDefaultSnapshotStrategy;
 			RegisterDefaultSnapshotBuilder = registerDefaultSnapshotBuilder;
 		}
@@ -250,6 +262,9 @@ namespace Cqrs.DependencyInjection.Modules
 
 			if (RegisterDefaultSnapshotAggregateRepository)
 				services.AddSingleton<ISnapshotAggregateRepository<TAuthenticationToken>, SnapshotRepository<TAuthenticationToken>>();
+
+			if (RegisterDefaultSnapshotSagaRepository)
+				services.AddSingleton<ISnapshotSagaRepository<TAuthenticationToken>, SnapshotSagaRepository<TAuthenticationToken>>();
 
 			services.AddSingleton<ISagaRepository<TAuthenticationToken>, SagaRepository<TAuthenticationToken>>();
 			services.AddSingleton<IAggregateFactory, AggregateFactory>();
