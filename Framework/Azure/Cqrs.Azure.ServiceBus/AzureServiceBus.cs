@@ -1392,7 +1392,23 @@ namespace Cqrs.Azure.ServiceBus
 				brokeredMessage.SessionId = messageWithOrderingKey.OrderKey;
 			}
 			brokeredMessage.AddUserProperty("CorrelationId", brokeredMessage.CorrelationId);
-			brokeredMessage.AddUserProperty("Type", messageType.FullName);
+			Type sagaType = typeof(Cqrs.Events.SagaEvent<int>);
+			string typeName = null;
+			if (messageType.Assembly == sagaType.Assembly && messageType.Name == sagaType.Name && messageType.Namespace == sagaType.Namespace)
+			{
+				PropertyInfo eventProperty = messageType.GetProperty("Event");
+				if (eventProperty != null)
+				{
+					object @event = eventProperty.GetValue(message);
+					if (@event != null)
+					{
+						typeName = $"{messageType.Namespace}.{messageType.Name}{{{@event.GetType().FullName}}}";
+					}
+				}
+			}
+			if (string.IsNullOrWhiteSpace(typeName))
+				typeName = messageType.FullName;
+			brokeredMessage.AddUserProperty("Type", typeName);
 			brokeredMessage.AddUserProperty("Source", $"{Logger.LoggerSettings.ModuleName}/{Logger.LoggerSettings.Instance}/{Logger.LoggerSettings.Environment}/{Logger.LoggerSettings.EnvironmentInstance}");
 			brokeredMessage.AddUserProperty("Framework",
 				// this compiler directive is intentionally .NET Core and not 4.8
