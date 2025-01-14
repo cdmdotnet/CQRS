@@ -82,7 +82,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Chinchilla.StateManagement" Version="4.2.11" />
-		<PackageReference Include="Chinchilla.Logging" Version="5.2.45" />
+		<PackageReference Include="Chinchilla.Logging" Version="5.3.46" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -91,6 +91,12 @@
 
 	<ItemGroup>
 		<Folder Include="Properties\" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+	  <PackageReference Include="Azure.Identity">
+	    <Version>1.13.1</Version>
+	  </PackageReference>
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">

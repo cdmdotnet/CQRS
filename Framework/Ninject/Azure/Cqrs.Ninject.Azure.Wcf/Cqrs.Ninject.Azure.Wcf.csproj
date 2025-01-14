@@ -92,8 +92,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Chinchilla.Logging.Azure" Version="5.2.45" />
-		<PackageReference Include="Chinchilla.Logging.Azure.ApplicationInsights" Version="5.2.45" />
+		<PackageReference Include="Chinchilla.Logging.Azure" Version="5.3.46" />
+		<PackageReference Include="Chinchilla.Logging.Azure.ApplicationInsights" Version="5.3.46" />
 	</ItemGroup>
 
 	<ItemGroup>

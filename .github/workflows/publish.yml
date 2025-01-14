@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  nuGetVersionNumber: 5.2.2
-  nuGetFullVersionNumber: 5.2.2.${{ github.run_number }}
+  nuGetVersionNumber: 5.2.3
+  nuGetFullVersionNumber: 5.2.3.${{ github.run_number }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
