@@ -12,9 +12,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="tools\**" />
-	  <EmbeddedResource Remove="tools\**" />
-	  <None Remove="tools\**" />
+		<Compile Remove="tools\**" />
+		<EmbeddedResource Remove="tools\**" />
+		<None Remove="tools\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,13 +32,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Framework\Cqrs\Cqrs.csproj" />
-	  <ProjectReference Include="..\..\Framework\Ninject\Azure\Cqrs.Ninject.Azure.ServiceBus.EventBus\Cqrs.Ninject.Azure.ServiceBus.EventBus.csproj" />
-	  <ProjectReference Include="..\..\Framework\Ninject\Cqrs.Ninject.MongoDB\Cqrs.Ninject.MongoDB.csproj" />
-	  <ProjectReference Include="..\..\Framework\Ninject\Cqrs.Ninject\Cqrs.Ninject.csproj" />
+		<ProjectReference Include="..\..\Framework\Cqrs\Cqrs.csproj" />
+		<ProjectReference Include="..\..\Framework\Ninject\Azure\Cqrs.Ninject.Azure.ServiceBus.EventBus\Cqrs.Ninject.Azure.ServiceBus.EventBus.csproj" />
+		<ProjectReference Include="..\..\Framework\Ninject\Cqrs.Ninject.MongoDB\Cqrs.Ninject.MongoDB.csproj" />
+		<ProjectReference Include="..\..\Framework\Ninject\Cqrs.Ninject\Cqrs.Ninject.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="System.Data.Linq" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" /> <!-- 6.34.0 -->
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="System.Data.Linq" />
 	</ItemGroup>
 </Project>

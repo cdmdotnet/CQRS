@@ -74,6 +74,7 @@
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
 		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="2.3.0" />
+		<PackageReference Include="Microsoft.Data.OData" Version="5.8.5" NoWarn="NU1608" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -83,7 +84,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-
+		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 	</ItemGroup>
 
 	<ItemGroup>
