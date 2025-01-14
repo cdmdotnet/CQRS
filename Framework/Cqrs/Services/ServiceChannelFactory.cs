@@ -22,9 +22,21 @@ namespace Cqrs.Services
 		/// <summary>
 		/// Instantiates a new instance of the <see cref="ServiceChannelFactory{TService}"/> class with a specified endpoint configuration name.
 		/// </summary>
-		/// <param name="endpointConfigurationName">The configuration name used for the endpoint.</param>
-		public ServiceChannelFactory(string endpointConfigurationName)
-			: base(endpointConfigurationName)
+		public ServiceChannelFactory(
+#if NETSTANDARD2_0
+				ServiceEndpoint endpoint
+#else
+				string endpointConfigurationName
+#endif
+			)
+			: base
+			(
+#if NETSTANDARD2_0
+				endpoint
+#else
+				endpointConfigurationName
+#endif
+			)
 		{
 			RegisterDataContracts();
 			AttachDataContractResolver(Endpoint);

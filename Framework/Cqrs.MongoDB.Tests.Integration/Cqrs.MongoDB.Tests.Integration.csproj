@@ -25,8 +25,9 @@
 	<ItemGroup>
 		<PackageReference Include="Chinchilla.StateManagement" Version="4.2.11" />
 		<PackageReference Include="Chinchilla.Logging" Version="5.3.46" />
-		<PackageReference Include="nunit" Version="3.12.0" />
-		<PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+		<PackageReference Include="nunit" Version="3.14.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 		<PackageReference Include="Ninject" Version="3.2.2.0" />
 	</ItemGroup>
 
