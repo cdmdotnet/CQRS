@@ -51,7 +51,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net48' ">
-		<PackageReference Include="Azure.Messaging.ServiceBus" Version="7.16.1" />
+		<PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.2" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -70,8 +70,8 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Chinchilla.StateManagement" Version="4.2.11" />
-	  <PackageReference Include="Chinchilla.Logging" Version="5.2.45" />
-	  <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
+	  <PackageReference Include="Chinchilla.Logging" Version="5.3.46" />
+	  <PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0" />
 	</ItemGroup>
 
 	<ItemGroup>
