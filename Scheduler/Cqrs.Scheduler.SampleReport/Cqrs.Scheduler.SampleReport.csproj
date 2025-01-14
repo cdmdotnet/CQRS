@@ -29,7 +29,6 @@
 	<ItemGroup>
 		<PackageReference Include="Chinchilla.Logging.Azure.Storage" Version="4.5.33" />
 
-		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.13.0" />
 		<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
 	</ItemGroup>
 
